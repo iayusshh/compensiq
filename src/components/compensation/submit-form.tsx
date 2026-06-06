@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formatLakhs } from "@/lib/utils";
+import { CheckCircle2 } from "lucide-react";
 
 const ROLES = [
   "Software Engineer", "Senior Software Engineer", "Staff Engineer", "Principal Engineer",
@@ -127,28 +127,23 @@ export function SubmitForm() {
 
   if (success) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-2xl">
-            ✓
-          </div>
-          <h2 className="text-lg font-semibold text-gray-900">Submitted successfully!</h2>
-          <p className="mt-1 text-sm text-gray-500">Redirecting to salary table...</p>
-        </CardContent>
-      </Card>
+      <div className="rounded-xl border border-slate-200 bg-white px-6 py-16 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
+          <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+        </div>
+        <h2 className="text-base font-semibold text-slate-900">Submitted — thank you</h2>
+        <p className="mt-1 text-sm text-slate-500">Redirecting to the salary table...</p>
+      </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card>
-        <CardHeader>
-          <h2 className="text-base font-semibold text-gray-900">Compensation Details</h2>
-          <p className="text-sm text-gray-500">All submissions are anonymous</p>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Company + Role row */}
-          <div className="grid gap-4 sm:grid-cols-2">
+      <div className="rounded-xl border border-slate-200 bg-white">
+        {/* Section: Role info */}
+        <div className="border-b border-slate-100 px-6 py-5">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">Role details</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Input
               label="Company Name"
               placeholder="e.g. Google, Flipkart, Razorpay"
@@ -165,9 +160,7 @@ export function SubmitForm() {
               error={errors.role}
             />
           </div>
-
-          {/* Level + Location */}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Select
               label="Level"
               value={form.level}
@@ -185,9 +178,7 @@ export function SubmitForm() {
               error={errors.location}
             />
           </div>
-
-          {/* Currency + YoE */}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Select
               label="Currency"
               value={form.currency}
@@ -205,69 +196,67 @@ export function SubmitForm() {
               hint="Optional"
             />
           </div>
+        </div>
 
-          <hr className="border-gray-100" />
-
-          {/* Compensation fields */}
-          <div>
-            <p className="mb-3 text-sm font-medium text-gray-700">Compensation (annual)</p>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Input
-                label="Base Salary"
-                type="number"
-                min={0}
-                step={1000}
-                placeholder="e.g. 2500000"
-                value={form.baseSalary}
-                onChange={(e) => setForm({ ...form, baseSalary: e.target.value })}
-                error={errors.baseSalary}
-                hint="Annual base"
-              />
-              <Input
-                label="Bonus"
-                type="number"
-                min={0}
-                step={1000}
-                placeholder="e.g. 300000"
-                value={form.bonus}
-                onChange={(e) => setForm({ ...form, bonus: e.target.value })}
-                hint="Annual, optional"
-              />
-              <Input
-                label="Equity / RSU (annualized)"
-                type="number"
-                min={0}
-                step={1000}
-                placeholder="e.g. 800000"
-                value={form.stockPerYear}
-                onChange={(e) => setForm({ ...form, stockPerYear: e.target.value })}
-                hint="Annual value, optional"
-              />
-            </div>
+        {/* Section: Compensation */}
+        <div className="px-6 py-5">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">Annual compensation</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <Input
+              label="Base Salary"
+              type="number"
+              min={0}
+              step={1000}
+              placeholder="e.g. 2500000"
+              value={form.baseSalary}
+              onChange={(e) => setForm({ ...form, baseSalary: e.target.value })}
+              error={errors.baseSalary}
+              hint="Annual base in selected currency"
+            />
+            <Input
+              label="Bonus"
+              type="number"
+              min={0}
+              step={1000}
+              placeholder="e.g. 300000"
+              value={form.bonus}
+              onChange={(e) => setForm({ ...form, bonus: e.target.value })}
+              hint="Annual, optional"
+            />
+            <Input
+              label="Equity / RSU (annualized)"
+              type="number"
+              min={0}
+              step={1000}
+              placeholder="e.g. 800000"
+              value={form.stockPerYear}
+              onChange={(e) => setForm({ ...form, stockPerYear: e.target.value })}
+              hint="Annual value, optional"
+            />
           </div>
 
-          {/* TC Preview */}
+          {/* TC preview */}
           {totalComp > 0 && (
-            <div className="rounded-lg bg-green-50 px-4 py-3">
-              <p className="text-sm text-gray-600">
-                Total Compensation:{" "}
-                <span className="text-lg font-bold text-green-700">
-                  {formatLakhs(totalComp)}
-                </span>
-                <span className="ml-2 text-xs text-gray-400">
-                  = {formatLakhs(base)} base
-                  {bonus > 0 ? ` + ${formatLakhs(bonus)} bonus` : ""}
-                  {stock > 0 ? ` + ${formatLakhs(stock)} equity` : ""}
-                </span>
+            <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs font-semibold uppercase tracking-widest text-emerald-600">Total Comp</span>
+                <span className="text-2xl font-bold tabular-nums text-emerald-700">{formatLakhs(totalComp)}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-emerald-600/70">
+                {formatLakhs(base)} base
+                {bonus > 0 && ` + ${formatLakhs(bonus)} bonus`}
+                {stock > 0 && ` + ${formatLakhs(stock)} equity`}
               </p>
             </div>
           )}
 
-          <Button type="submit" loading={submitting} className="w-full" size="lg">
-            Submit Anonymously
-          </Button>
-        </CardContent>
-      </Card>
+          <div className="mt-6">
+            <Button type="submit" loading={submitting} size="lg" className="w-full">
+              Submit Anonymously
+            </Button>
+          </div>
+        </div>
+      </div>
     </form>
   );
 }

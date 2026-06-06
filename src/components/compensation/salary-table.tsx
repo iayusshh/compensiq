@@ -6,18 +6,26 @@ import { formatLakhs } from "@/lib/utils";
 import { TierBadge, Badge } from "@/components/ui/badge";
 import { Input, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import type { CompensationEntry, PaginatedResponse } from "@/types";
 
-const ROLES = ["Software Engineer", "Product Manager", "Data Scientist", "Designer", "DevOps Engineer", "Engineering Manager"];
-const LEVELS = ["L3", "L4", "L5", "L6", "L7", "SDE1", "SDE2", "SDE3", "Senior SDE", "Principal SDE", "Junior", "Mid", "Senior", "Staff"];
-const LOCATIONS = ["Bangalore", "Hyderabad", "Pune", "Mumbai", "Gurgaon", "Chennai", "Noida", "Remote"];
+const ROLES = [
+  "Software Engineer", "Product Manager", "Data Scientist",
+  "Designer", "DevOps Engineer", "Engineering Manager",
+];
+const LEVELS = [
+  "L3", "L4", "L5", "L6", "L7", "SDE1", "SDE2", "SDE3",
+  "Senior SDE", "Principal SDE", "Junior", "Mid", "Senior", "Staff",
+];
+const LOCATIONS = [
+  "Bangalore", "Hyderabad", "Pune", "Mumbai", "Gurgaon",
+  "Chennai", "Noida", "Remote",
+];
 const SORT_OPTIONS = [
   { value: "totalComp:desc", label: "Highest TC" },
   { value: "totalComp:asc", label: "Lowest TC" },
   { value: "submittedAt:desc", label: "Most Recent" },
-  { value: "levelOrder:asc", label: "Level (Low → High)" },
-  { value: "levelOrder:desc", label: "Level (High → Low)" },
+  { value: "levelOrder:asc", label: "Level Low → High" },
+  { value: "levelOrder:desc", label: "Level High → Low" },
 ];
 
 interface Filters {
@@ -28,11 +36,7 @@ interface Filters {
   sort: string;
 }
 
-interface SalaryTableProps {
-  initialData: PaginatedResponse<CompensationEntry>;
-}
-
-export function SalaryTable({ initialData }: SalaryTableProps) {
+export function SalaryTable({ initialData }: { initialData: PaginatedResponse<CompensationEntry> }) {
   const [data, setData] = useState(initialData);
   const [filters, setFilters] = useState<Filters>({
     company: "",
@@ -48,22 +52,14 @@ export function SalaryTable({ initialData }: SalaryTableProps) {
     setLoading(true);
     try {
       const [sortBy, sortDir] = f.sort.split(":");
-      const params = new URLSearchParams({
-        page: p.toString(),
-        limit: "20",
-        sortBy,
-        sortDir,
-      });
+      const params = new URLSearchParams({ page: p.toString(), limit: "20", sortBy, sortDir });
       if (f.company) params.set("company", f.company);
       if (f.role) params.set("role", f.role);
       if (f.level) params.set("level", f.level);
       if (f.location) params.set("location", f.location);
 
       const res = await fetch(`/api/compensations?${params}`);
-      if (res.ok) {
-        const json = await res.json();
-        setData(json);
-      }
+      if (res.ok) setData(await res.json());
     } finally {
       setLoading(false);
     }
@@ -82,10 +78,12 @@ export function SalaryTable({ initialData }: SalaryTableProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const hasActiveFilters = !!(filters.company || filters.role || filters.level || filters.location);
+
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <Card className="p-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           <Input
             placeholder="Company..."
@@ -117,63 +115,57 @@ export function SalaryTable({ initialData }: SalaryTableProps) {
             placeholder="Sort by"
           />
         </div>
-      </Card>
+      </div>
 
-      {/* Results count */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">
-          {data.total.toLocaleString()} entries found
+      {/* Meta row */}
+      <div className="flex items-center justify-between px-0.5">
+        <p className="text-sm text-slate-500">
+          <span className="font-medium text-slate-900">{data.total.toLocaleString()}</span> entries
         </p>
-        {(filters.company || filters.role || filters.level || filters.location) && (
-          <Button
-            variant="ghost"
-            size="sm"
+        {hasActiveFilters && (
+          <button
             onClick={() => {
-              const reset = { company: "", role: "", level: "", location: "", sort: "totalComp:desc" };
+              const reset: Filters = { company: "", role: "", level: "", location: "", sort: "totalComp:desc" };
               setFilters(reset);
               setPage(1);
               fetchData(reset, 1);
             }}
+            className="text-sm text-slate-400 underline-offset-2 hover:text-slate-700 hover:underline"
           >
             Clear filters
-          </Button>
+          </button>
         )}
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className={`overflow-x-auto rounded-xl border border-slate-200 bg-white transition-opacity ${loading ? "opacity-60" : ""}`}>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50 text-left">
-              <th className="px-4 py-3 font-medium text-gray-600">Company</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Role</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Level</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Location</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-600">Base</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-600">Bonus</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-600">Equity/yr</th>
-              <th className="px-4 py-3 text-right font-medium text-gray-600">Total TC</th>
+            <tr className="border-b border-slate-100 bg-slate-50/80 text-left">
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Company</th>
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Role</th>
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Level</th>
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Location</th>
+              <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Base</th>
+              <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Bonus</th>
+              <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Equity/yr</th>
+              <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Total TC</th>
             </tr>
           </thead>
-          <tbody className={loading ? "opacity-50" : ""}>
+          <tbody className="divide-y divide-slate-50">
             {data.data.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-gray-400">
-                  No data found. Try adjusting your filters.
+                <td colSpan={8} className="py-16 text-center text-sm text-slate-400">
+                  No results. Try adjusting your filters.
                 </td>
               </tr>
             )}
-            {data.data.map((row, i) => (
-              <tr
-                key={row.id}
-                className={`border-b border-gray-50 transition-colors hover:bg-blue-50/30 ${
-                  i % 2 === 0 ? "bg-white" : "bg-gray-50/30"
-                }`}
-              >
-                <td className="px-4 py-3">
+            {data.data.map((row) => (
+              <tr key={row.id} className="transition-colors hover:bg-slate-50/60">
+                <td className="px-5 py-3.5">
                   <Link
                     href={`/companies/${row.company.slug}`}
-                    className="font-medium text-blue-700 hover:underline"
+                    className="font-medium text-slate-900 hover:text-indigo-700"
                   >
                     {row.company.name}
                   </Link>
@@ -181,20 +173,24 @@ export function SalaryTable({ initialData }: SalaryTableProps) {
                     <TierBadge tier={row.company.tier} />
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-700">{row.role}</td>
-                <td className="px-4 py-3">
+                <td className="px-5 py-3.5 text-slate-600">{row.role}</td>
+                <td className="px-5 py-3.5">
                   <Badge variant="muted">{row.level}</Badge>
                 </td>
-                <td className="px-4 py-3 text-gray-500">{row.location}</td>
-                <td className="px-4 py-3 text-right text-gray-700">{formatLakhs(row.baseSalary)}</td>
-                <td className="px-4 py-3 text-right text-gray-500">
+                <td className="px-5 py-3.5 text-slate-500">{row.location}</td>
+                <td className="px-5 py-3.5 text-right tabular-nums text-slate-700">
+                  {formatLakhs(row.baseSalary)}
+                </td>
+                <td className="px-5 py-3.5 text-right tabular-nums text-slate-400">
                   {row.bonus > 0 ? formatLakhs(row.bonus) : "—"}
                 </td>
-                <td className="px-4 py-3 text-right text-gray-500">
+                <td className="px-5 py-3.5 text-right tabular-nums text-slate-400">
                   {row.stockPerYear > 0 ? formatLakhs(row.stockPerYear) : "—"}
                 </td>
-                <td className="px-4 py-3 text-right font-semibold text-green-700">
-                  {formatLakhs(row.totalComp)}
+                <td className="px-5 py-3.5 text-right">
+                  <span className="font-semibold tabular-nums text-emerald-700">
+                    {formatLakhs(row.totalComp)}
+                  </span>
                 </td>
               </tr>
             ))}
@@ -204,7 +200,7 @@ export function SalaryTable({ initialData }: SalaryTableProps) {
 
       {/* Pagination */}
       {data.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-3 pt-2">
           <Button
             variant="secondary"
             size="sm"
@@ -213,8 +209,8 @@ export function SalaryTable({ initialData }: SalaryTableProps) {
           >
             Previous
           </Button>
-          <span className="text-sm text-gray-600">
-            Page {page} of {data.totalPages}
+          <span className="text-sm text-slate-500">
+            Page <span className="font-medium text-slate-900">{page}</span> of {data.totalPages}
           </span>
           <Button
             variant="secondary"

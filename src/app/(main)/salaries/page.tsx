@@ -55,9 +55,9 @@ export default async function SalariesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Salary Table</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Real compensation data — filter by company, role, level, and location
+        <h1 className="text-xl font-semibold tracking-tight text-slate-900">Salary Table</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Filter by company, role, level, and location
         </p>
       </div>
       <SalaryTable initialData={initialData} />

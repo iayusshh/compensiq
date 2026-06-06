@@ -2,7 +2,6 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatLakhs, percentile } from "@/lib/utils";
 import { TierBadge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 
 export const metadata = {
   title: "Companies — CompensIQ",
@@ -52,51 +51,62 @@ export default async function CompaniesPage() {
   );
 
   const tiers = Object.keys(grouped).sort(
-    (a, b) => (TIER_ORDER[a as keyof typeof TIER_ORDER] ?? 9) - (TIER_ORDER[b as keyof typeof TIER_ORDER] ?? 9)
+    (a, b) =>
+      (TIER_ORDER[a as keyof typeof TIER_ORDER] ?? 9) -
+      (TIER_ORDER[b as keyof typeof TIER_ORDER] ?? 9)
   );
 
   const tierLabels: Record<string, string> = {
     FAANG: "FAANG & Big Tech",
     TIER1: "Top Indian Tech",
-    MID: "Mid-tier Companies",
+    MID: "Mid-tier",
     STARTUP: "Startups",
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Companies</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {companies.length} companies tracked — click to see level breakdowns and TC distributions
+        <h1 className="text-xl font-semibold tracking-tight text-slate-900">Companies</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          {companies.length} companies tracked — click to see level breakdowns
         </p>
       </div>
 
       {tiers.map((tier) => (
-        <section key={tier}>
-          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-gray-700">
+        <section key={tier} className="space-y-3">
+          <div className="flex items-center gap-2.5">
             <TierBadge tier={tier} />
-            {tierLabels[tier] ?? tier}
-          </h2>
+            <h2 className="text-sm font-semibold text-slate-700">
+              {tierLabels[tier] ?? tier}
+            </h2>
+            <span className="text-xs text-slate-400">{grouped[tier].length} companies</span>
+          </div>
+
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {grouped[tier].map((c) => (
               <Link key={c.id} href={`/companies/${c.slug}`}>
-                <Card className="cursor-pointer p-4 transition-shadow hover:shadow-md">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{c.name}</h3>
-                      <p className="text-xs text-gray-400">{c.count} data points</p>
+                <div className="group rounded-xl border border-slate-200 bg-white p-5 transition-all hover:border-slate-300 hover:shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold text-slate-900 group-hover:text-indigo-700">
+                        {c.name}
+                      </h3>
+                      <p className="mt-0.5 text-xs text-slate-400">{c.count} data points</p>
                     </div>
                     <TierBadge tier={c.tier} />
                   </div>
+
                   {c.count > 0 && (
-                    <div className="mt-3 space-y-1">
-                      <p className="text-xl font-bold text-green-700">{formatLakhs(c.medianTC)}</p>
-                      <p className="text-xs text-gray-400">
-                        P25: {formatLakhs(c.p25TC)} — P75: {formatLakhs(c.p75TC)}
+                    <div className="mt-4 border-t border-slate-100 pt-4">
+                      <p className="text-xl font-bold tabular-nums text-emerald-700">
+                        {formatLakhs(c.medianTC)}
+                      </p>
+                      <p className="mt-0.5 text-xs text-slate-400">
+                        P25 {formatLakhs(c.p25TC)} · P75 {formatLakhs(c.p75TC)}
                       </p>
                     </div>
                   )}
-                </Card>
+                </div>
               </Link>
             ))}
           </div>

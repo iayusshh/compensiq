@@ -1,19 +1,46 @@
 import { cn } from "@/lib/utils";
 
-export function Card({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+export function Card({
+  children,
+  className,
+  style,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
-    <div className={cn("rounded-xl border border-gray-200 bg-white shadow-sm", className)} style={style}>
+    <div
+      className={cn("rounded-xl border border-slate-200 bg-white", className)}
+      style={style}
+    >
       {children}
     </div>
   );
 }
 
-export function CardHeader({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("border-b border-gray-100 p-5", className)}>{children}</div>;
+export function CardHeader({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("border-b border-slate-100 px-6 py-4", className)}>
+      {children}
+    </div>
+  );
 }
 
-export function CardContent({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("p-5", className)}>{children}</div>;
+export function CardContent({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <div className={cn("px-6 py-5", className)}>{children}</div>;
 }
 
 export function StatCard({
@@ -28,10 +55,10 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <Card className={cn("p-5", className)}>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-gray-900">{value}</p>
-      {sub && <p className="mt-0.5 text-xs text-gray-400">{sub}</p>}
+    <Card className={cn("px-6 py-5", className)}>
+      <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">{label}</p>
+      <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-slate-900">{value}</p>
+      {sub && <p className="mt-1 text-xs text-slate-400">{sub}</p>}
     </Card>
   );
 }

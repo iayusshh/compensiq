@@ -12,9 +12,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export function Input({ label, error, hint, className, id, ...props }: InputProps) {
   const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       {label && (
-        <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-700">
           {label}
         </label>
       )}
@@ -22,13 +22,13 @@ export function Input({ label, error, hint, className, id, ...props }: InputProp
         id={inputId}
         {...props}
         className={cn(
-          "rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50",
-          error && "border-red-400 focus:border-red-500 focus:ring-red-500",
+          "h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 transition-all focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:bg-slate-50 disabled:text-slate-400",
+          error && "border-red-400 focus:border-red-500 focus:ring-red-500/20",
           className
         )}
       />
       {error && <p className="text-xs text-red-600">{error}</p>}
-      {hint && !error && <p className="text-xs text-gray-500">{hint}</p>}
+      {hint && !error && <p className="text-xs text-slate-400">{hint}</p>}
     </div>
   );
 }
@@ -43,22 +43,34 @@ interface SelectProps {
   className?: string;
 }
 
-export function Select({ label, error, value, onChange, options, placeholder, className }: SelectProps) {
+export function Select({
+  label,
+  error,
+  value,
+  onChange,
+  options,
+  placeholder,
+  className,
+}: SelectProps) {
   return (
-    <div className="flex flex-col gap-1">
-      {label && <label className="text-sm font-medium text-gray-700">{label}</label>}
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label className="text-sm font-medium text-slate-700">{label}</label>
+      )}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          "rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 transition-colors focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500",
-          error && "border-red-400",
+          "h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 transition-all focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20",
+          error && "border-red-400 focus:border-red-500",
           className
         )}
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
         ))}
       </select>
       {error && <p className="text-xs text-red-600">{error}</p>}

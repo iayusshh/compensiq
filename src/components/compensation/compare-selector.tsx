@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { TierBadge } from "@/components/ui/badge";
 import { CompareWidget } from "./compare-widget";
+import { Check } from "lucide-react";
 
 interface Company {
   id: string;
@@ -96,77 +98,101 @@ export function CompareSelector({ companies }: { companies: Company[] }) {
   }, {} as Record<string, Company[]>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Company picker */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-1 text-sm font-semibold text-gray-700">
-          Select 2–3 companies to compare
-        </h2>
-        <p className="mb-4 text-xs text-gray-400">
-          {selected.length}/3 selected
-        </p>
-
-        {Object.entries(grouped).map(([tier, comps]) => (
-          <div key={tier} className="mb-4">
-            <p className="mb-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-              {tierLabels[tier] ?? tier}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {comps.map((c) => {
-                const isSelected = selected.includes(c.slug);
-                const disabled = !isSelected && selected.length >= 3;
-                return (
-                  <button
-                    key={c.slug}
-                    onClick={() => !disabled && toggle(c.slug)}
-                    disabled={disabled}
-                    className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                        : disabled
-                        ? "border-gray-100 text-gray-300 cursor-not-allowed"
-                        : "border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50"
-                    }`}
-                  >
-                    {c.name}
-                    {isSelected && <span className="ml-1">✓</span>}
-                  </button>
-                );
-              })}
+      <div className="rounded-xl border border-slate-200 bg-white">
+        <div className="border-b border-slate-100 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                Select companies
+              </h2>
+              <p className="mt-0.5 text-sm text-slate-500">
+                Pick 2–3 companies to compare
+              </p>
             </div>
+            <span className="text-sm font-medium text-slate-400">
+              {selected.length} / 3
+            </span>
           </div>
-        ))}
+        </div>
 
-        {/* Optional filters */}
-        <div className="mt-4 flex flex-wrap gap-3 border-t border-gray-100 pt-4">
-          <input
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
-            placeholder="Filter by role (optional)"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          />
-          <input
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
-            placeholder="Filter by level (optional)"
-            value={level}
-            onChange={(e) => setLevel(e.target.value)}
-          />
-          <Button onClick={compare} loading={loading} disabled={selected.length < 2}>
+        <div className="space-y-5 px-6 py-5">
+          {Object.entries(grouped).map(([tier, comps]) => (
+            <div key={tier}>
+              <div className="mb-2.5 flex items-center gap-2">
+                <TierBadge tier={tier} />
+                <span className="text-xs font-medium text-slate-500">{tierLabels[tier] ?? tier}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {comps.map((c) => {
+                  const isSelected = selected.includes(c.slug);
+                  const disabled = !isSelected && selected.length >= 3;
+                  return (
+                    <button
+                      key={c.slug}
+                      onClick={() => !disabled && toggle(c.slug)}
+                      disabled={disabled}
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-all ${
+                        isSelected
+                          ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                          : disabled
+                          ? "cursor-not-allowed border-slate-100 text-slate-300"
+                          : "border-slate-200 text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                      }`}
+                    >
+                      {isSelected && <Check className="h-3.5 w-3.5" />}
+                      {c.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters + action */}
+        <div className="flex flex-wrap items-end gap-3 border-t border-slate-100 px-6 py-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-slate-500">Role filter</label>
+            <input
+              className="h-9 rounded-lg border border-slate-300 px-3 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              placeholder="e.g. Software Engineer"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-slate-500">Level filter</label>
+            <input
+              className="h-9 rounded-lg border border-slate-300 px-3 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              placeholder="e.g. L5, SDE2"
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+            />
+          </div>
+          <Button
+            onClick={compare}
+            loading={loading}
+            disabled={selected.length < 2}
+          >
             Compare
           </Button>
           {selected.length > 0 && (
-            <Button
-              variant="ghost"
+            <button
               onClick={() => { setSelected([]); setResult(null); }}
+              className="text-sm text-slate-400 hover:text-slate-700"
             >
               Clear
-            </Button>
+            </button>
           )}
         </div>
-        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+
+        {error && (
+          <p className="px-6 pb-4 text-sm text-red-600">{error}</p>
+        )}
       </div>
 
-      {/* Results */}
       {result && <CompareWidget data={result} />}
     </div>
   );
